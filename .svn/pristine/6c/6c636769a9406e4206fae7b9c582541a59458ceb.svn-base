@@ -1,0 +1,256 @@
+<template>
+<div class="">
+    <div class="gx-form-card">
+        <div class="gx-form-card-header">
+            <span>工单信息</span>
+        </div>
+        <div class="gx-form-card-body">
+            <div>
+                <div class="gx-form-card-list clearfix">
+                    <p class="gx-form-list-left fl">工单类型</p>
+                    <span class="gx-form-list-right fr">{{alarm_type_name[alarm_type]}}</span>
+                </div>
+                <div class="gx-form-card-list clearfix">
+                    <p class="gx-form-list-left fl">告警内容</p>
+                    <span class="gx-form-list-right fr">{{topic}}</span>
+                </div>
+                <div class="gx-form-card-list clearfix">
+                    <p class="gx-form-list-left fl">发生时间</p>
+                    <span class="gx-form-list-right fr">{{alarm_time}}</span>
+                </div>
+                <div class="gx-form-card-list clearfix">
+                    <p class="gx-form-list-left fl">发生地址</p>
+                    <span class="gx-form-list-right fr">{{address}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="gx-form-height"></div>
+    <div class="gx-form-card">
+        <div class="gx-form-card-header">
+            <span>处理工单</span>
+        </div>
+         <div class="gx-form-card-body">
+            <div>
+                <div class="gx-form-card-list clearfix">
+                    <p class="gx-form-list-left fl">处理结果</p>
+                    <span class="gx-form-list-right fr">
+                        <picker mode='selector' class="gx-select-title" @change="bindPickerChange" :value='handlingType' :range="handlingTypeName">
+              {{handlingTypeTitle}}
+                            <img class="icon-arrow-bottom" src="/static/assets/images/icon_arrow_bottom.png" />
+                        </picker>
+                    </span>
+                </div>
+                 <div class="table-row-upload">
+                  <photoup name="处理照片" mode='upload'  :photoList="upload_path" max_photo="3" @_photoList="photolist" />
+                 </div>
+                <div class="textarea-container">
+                <div class="textarea-container-title">
+                    处理说明
+                </div>
+                <textarea placeholder="简单描述你的处理说明" class="textarea-container-area" v-model="value"></textarea>
+                <p class="textarea-container-limit">{{0}}/50</p>
+                </div>
+            </div>
+             <div class="bottom">
+             <button class="submit" @click="submitHandle">提交</button>
+            </div>
+        </div>
+    </div>
+</div>
+</template>
+<script>
+
+import * as Api from '@/api/order.js'
+import photoup from '@/components/upload/upimage.vue'
+
+export default {
+  components: {
+    photoup
+  },
+  data () {
+    return {
+      orderId:-1,
+      topic:'',
+      address:'',
+      alarm_type:0,
+      alarm_type_name:[
+        '设备告警',
+        '投诉建议',
+        '物业报修',
+        '疫情告警'
+      ],
+      alarm_time:'',
+      handlingTypeName:[
+          '更换设备',
+          '维修设备',
+          '解除告警',
+          '其他'
+      ],
+      handlingType:0,
+      handlingTypeTitle:'',
+      handlingDesc:'',
+      handlingPic:'',
+
+      imgUrls:[],
+      remark:''
+    }
+  },
+
+  mounted() {
+    
+  },
+  methods: {
+      photolist(images){
+        console.log('@@@@@@@@@@@@@@')
+        console.log(images)
+        this.imgUrls = images
+      },
+      bindPickerChange: function(e) {
+        console.log('picker发送选择改变，携带值为', e.mp.detail.value)
+        this.handlingTypeTitle = this.handlingTypeName[e.mp.detail.value]
+        this.handlingType = e.mp.detail.value
+      },
+
+      async submitHandle(e){
+          console.log('提交处理...')
+          let loginInfo = wx.getStorageSync("loginInfo")
+
+          let param = {}
+          param.id = this.orderId
+          param.handlingType = this.handlingType
+          param.handlingDesc = this.handlingDesc
+          param.tureTransactorId = loginInfo.id
+          
+          let imagePic = ''
+          for(let index in this.imgUrls){
+            let imgid = this.imgUrls[index]
+            imagePic = imgid+','+imagePic
+          }
+          param.handlingPic = imagePic
+
+          console.log(param)
+
+          let resDetails = await Api.scomWorkHandleOrder(loginInfo.token, param)
+          console.log(resDetails)
+          if(!resDetails || resDetails.code!="0"){
+          wx.showToast({
+            title: resDetails.msg,
+            icon: 'none'
+          })
+          return
+        }else{
+          wx.showToast({
+            title: resDetails.msg,
+            icon: 'none'
+          })
+
+          let that = this
+          var pages = getCurrentPages(); //当前页面
+          var beforePage = pages[pages.length - 2]; //前一页
+          wx.navigateBack({
+            success: function () {
+              that.imgUrls = []
+              beforePage.onLoad(); // 执行前一个页面的onLoad方法
+            }
+          });
+        }
+      }
+  },
+
+  async onLoad(options){
+    let that = this
+    
+    let loginInfo = wx.getStorageSync("loginInfo")
+    console.log('Handle-order/main/onLoad...')
+    console.log(loginInfo)
+    console.log('<<<<<<<<<<<<<<<<<<<<')
+    console.log(options)
+    console.log('>>>>>>>>>>>>>>>>>>>>')
+    that.orderId = options.deviceId;
+    console.log('?????????????????????')
+    console.log('orderId: '+that.orderId)
+
+    if (this.orderId == null || this.orderId == 'undefined') {
+      this.orderId = -1;
+    }
+
+    //请求工单详情
+    console.log('handle order 88...')
+    let res = await Api.scomWorkOrderDetail(loginInfo.token, that.orderId)
+  console.log(res)
+    if(!res || res.code!="0"){
+        wx.showToast({
+          title: res.msg,
+          icon: 'none'
+        })
+        return
+    }
+    that.topic = res.data.topic
+    that.alarm_type = res.data.type
+    that.alarm_time = res.data.alarm_start_time
+    that.address = res.data.address
+    that.handlingType = res.data.handlingType
+    that.handlingDesc = res.data.handlingDesc
+    that.handlingPic = res.data.handlingPic
+    that.handlingTypeTitle = that.handlingTypeName[that.handlingType]
+
+    console.log('++++++++++++89')
+    
+  }
+}
+</script>
+
+<style scoped>
+.textarea-container{
+  padding: .2rem;
+  font-size: 16px;
+  border-top: solid 1px #B1B1B1;
+  border-bottom: solid 1px #B1B1B1;
+
+}
+.textarea-container-title{
+  font-size: 16px
+}
+.textarea-container-area{
+  min-height: 100px;
+  border: none;
+  font-size: 14px;
+  margin: 10px 0;
+  width: 100%;
+
+}
+.textarea-container-limit{
+  text-align: right;
+  color: #999;
+}
+  .bottom{
+    margin: .5rem 0.6rem .5rem;
+    bottom: 1rem;
+    
+}
+
+.bottom .submit{
+    width: 100%;
+    height: .8rem;
+    background: #FF8C01;
+    color: #fff;
+    outline: none;
+    border-radius: 0.05rem;
+    font-size: 0.35rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.table-row-upload{
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 20rpx 0rpx 20rpx 0rpx;
+  box-sizing: border-box;
+  width: 100%;
+}
+</style>

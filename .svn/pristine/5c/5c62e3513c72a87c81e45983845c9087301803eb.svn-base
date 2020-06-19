@@ -1,0 +1,107 @@
+<template>
+<page-meta
+  root-font-size="16px"
+>
+ <div class="gx-login-container">
+    <div class="login-select-box clearfix">
+        <div  class="login-select-img fl">
+            <img src="/static/assets/images/login_img1.png">
+        </div>
+        <div class="login-select-text fl">
+            <p>我是企业客户</p>
+            <span>单位消防员/巡检员</span>
+        </div>
+        <div class="login-select-arrow fl">
+            <i class="icon-arrow "></i>
+        </div>
+    </div>
+    <div class="login-select-box clearfix">
+        <div  class="login-select-img fl">
+            <img src="/static/assets/images/login_img2.png">
+        </div>
+        <div class="login-select-text fl">
+            <p>我是个人客户</p>
+            <span>个人用户/居民</span>
+        </div>
+        <div class="login-select-arrow fl">
+            <i class="icon-arrow "></i>
+        </div>
+    </div>
+    <div class="login-select-tips">
+        <p class="gx-textOrange">温馨提示：</p>
+        <span>由于您所在的组织和您个人分别受理了智慧消防云业务，请选择登陆的身份。</span>
+    </div>
+</div>
+</page-meta>
+
+</template>
+ 
+<script>
+
+export default {
+  
+
+  data () {
+    return {
+      
+    }
+  },
+
+  mounted() {
+    
+  },
+  methods: {
+
+  },
+}
+</script>
+
+<style scoped>
+
+/*用户登录选择*/
+.login-select-box{
+    border: 1px solid #ddd;
+    border-radius: 0.2rem;
+    padding: 0.5rem 0.2rem;
+    margin: 0.8rem .5rem;
+    font-size: 0.38rem;
+}
+
+.login-select-box .login-select-img{
+    width: 25%;
+    text-align: center;
+}
+
+.login-select-box .login-select-img img{
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+.login-select-box .login-select-text{
+    width: 60%;
+
+}
+
+.login-select-box .login-select-text p{
+    font-size: 0.45rem;
+    font-weight: bold;
+}
+
+.login-select-box .login-select-text span{
+    font-size: 0.38rem;
+    color: #999;
+}
+
+.login-select-box .login-select-arrow{
+    width:15%;
+    height: 1.2rem;
+    line-height: 1.2rem;
+}
+
+.login-select-tips{
+    color: #999;
+    margin: 0.8rem .5rem;
+
+    font-size: 0.35rem;
+}
+</style>

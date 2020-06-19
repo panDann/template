@@ -1,0 +1,225 @@
+<template>
+<div class="">
+    <div class="gx-form-card">
+        <div class="gx-form-card-body">
+            <div>
+                <div class="gx-form-card-list clearfix">
+                    <p class="gx-form-list-left fl">设备名称</p>
+                    <span class="gx-form-list-right fr">{{equipmentName}}</span>
+                </div>
+                <div class="gx-form-card-list clearfix">
+                    <p class="gx-form-list-left fl">设备地址</p>
+                    <span class="gx-form-list-right fr">{{address}}</span>
+                </div>
+                <div class="gx-form-card-list clearfix">
+                    <p class="gx-form-list-left fl">巡检结果</p>
+                    <span class="gx-form-list-right fr">
+                      <radio-group class="radio-group" @change="radioChange">
+                        <label class="radio">
+                          <radio color='#FF8C01' value="0" :checked="handling_type==0"  /> 正常
+                          <radio color='#FF8C01' value="1" :checked="handling_type==1"  /> 异常
+                        </label>
+                      </radio-group>
+                    </span>
+                </div>
+                <div class="gx-form-card-list clearfix">
+                    <div class="textarea-container-title">
+                        问题描述
+                    </div>
+                    <textarea placeholder="简单描述你的处理说明" class="textarea-container-area" :value="handling_desc"></textarea>
+                    <p class="textarea-container-limit">{{0}}/200</p>
+                </div>
+
+                <div class="gx-form-card-list clearfix">
+                    <div class="table-row-upload">
+                      <photoup name="现场照片" mode='upload' :photoList="upload_path" max_photo="3" @_photoList="photolist" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="gx-form-card">
+         <div class="gx-form-card-body">
+
+             <div class="bottom">
+             <button class="submit" @click="complete">完成</button>
+                </div>
+        </div>
+    </div>
+</div>
+</template>
+<script>
+
+import * as Api from '@/api/order.js'
+import photoup from '@/components/upload/upimage.vue'
+export default {
+  components: {
+    photoup,
+  },
+  data () {
+    return {
+       deviceId:-1,
+       handling_type: 0,
+       equipmentName:'',
+       address:'',
+       handling_desc:'',
+       imgUrls:[],
+       remark:''
+    }
+  },
+
+  mounted() {
+    
+  },
+  methods: {
+      onImage(imgs){
+          console.log(imgs);
+          
+      },
+      
+      radioChange(e) {
+        this.handling_type = e.target.value
+        console.log('as_type: '+this.handling_type)
+      },
+
+      photolist(images){
+        console.log('@@@@@@@@@@@@@@11')
+        console.log(images)
+        this.imgUrls = images
+      },
+
+      async complete(){
+
+        let that = this
+        let loginInfo = wx.getStorageSync("loginInfo")
+        console.log('handle-device/main/complete...')
+        console.log('dd:'+this.handling_desc)
+
+        if(!that.handling_desc){
+          wx.showToast({
+            title: '请简单描述您的问题！',
+            icon: 'none'
+          })
+          return
+        }
+        let param = {}
+        param.id = that.deviceId
+        param.handlingType = that.handling_type
+        param.handlingDesc = that.handling_desc
+
+        let imagePic = ''
+        for(let index in this.imgUrls){
+            let imgid = this.imgUrls[index]
+            imagePic = imgid+','+imagePic
+        }
+        param.handlingPic = imagePic
+
+        let resDetails = await Api.updatePortalTask(loginInfo.token, param)
+        console.log(resDetails)
+        if(!resDetails || resDetails.code!="0"){
+          wx.showToast({
+            title: resDetails.msg,
+            icon: 'none'
+          })
+          return
+        }else{
+          wx.showToast({
+            title: resDetails.msg,
+            icon: 'none'
+          })
+
+          var pages = getCurrentPages(); //当前页面
+          var beforePage = pages[pages.length - 2]; //前一页
+          wx.navigateBack({
+            success: function () {
+              that.imgUrls = []
+              beforePage.onLoad(); // 执行前一个页面的onLoad方法
+            }
+          });
+        }
+      }
+  },
+
+  async onLoad(options){
+    let that = this
+    let loginInfo = wx.getStorageSync("loginInfo")
+    console.log('handle-device/main/onLoad...')
+    console.log(loginInfo)
+    console.log(options)
+
+    var devId = options.deviceId;
+    console.log('deviceId: '+devId)
+
+    if (devId == null || devId == 'undefined') {
+      devId = -1;
+    }
+    that.deviceId = devId
+
+    //请求巡检工单设备详情
+    console.log('TaskDetail5...')
+    let resDetails = await Api.getTaskEquipmentDetail(loginInfo.token, devId)
+    console.log(resDetails)
+    if(!resDetails || resDetails.code!="0"){
+        wx.showToast({
+          title: resDetails.msg,
+          icon: 'none'
+        })
+        return
+    }
+    console.log('++++++++++++6')
+    console.log(resDetails.data)
+
+    that.handling_type = resDetails.data.handling_type?resDetails.data.handling_type:0
+    that.equipmentName = resDetails.data.equipmentName
+    that.address = resDetails.data.name
+    // that.handling_desc = resDetails.data.handling_desc
+    that.handling_desc = "dadfasd111"
+    that.handling_pic = resDetails.data.handling_pic
+
+  }
+}
+
+</script>
+
+<style scoped>
+.textarea-container{
+  padding: .2rem;
+  font-size: 16px;
+  border-top: solid 1px #B1B1B1;
+  border-bottom: solid 1px #B1B1B1;
+
+}
+.textarea-container-title{
+  font-size: 16px
+}
+.textarea-container-area{
+  min-height: 100px;
+  border: none;
+  font-size: 14px;
+  margin: 10px 0;
+  width: 100%;
+
+}
+.textarea-container-limit{
+  text-align: right;
+  color: #999;
+}
+  .bottom{
+    margin: .5rem 0.6rem .5rem;
+    bottom: 1rem;
+    
+}
+
+.bottom .submit{
+    width: 100%;
+    height: .8rem;
+    background: #FF8C01;
+    color: #fff;
+    outline: none;
+    border-radius: 0.05rem;
+    font-size: 0.35rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+</style>

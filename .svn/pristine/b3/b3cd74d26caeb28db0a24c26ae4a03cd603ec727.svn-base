@@ -1,0 +1,10 @@
+{
+  
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "工单处理",
+    "navigationBarTextStyle": "black",
+    "usingComponent":{
+        "img-picker":"../../../components/img-picker/index.vue"
+    }
+}

@@ -1,0 +1,12 @@
+.primary-color {
+    color: #FF8C01;
+  }
+  .light-blue {
+    color: #108ee9;
+  }
+  .red-star {
+    color: #fe0808;
+  }
+.warning {
+    color:rgba(241,86,67,1)!important;
+}

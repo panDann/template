@@ -1,0 +1,268 @@
+<template>
+
+<div class="upload-photo">
+  <div v-if="mode=='preview'" class="upload-photo-title">{{name}}</div>
+
+  <div v-else-if="mode=='upload'" class="upload-photo-title">
+          {{name}}({{localPhotoList.length}}/{{max_photo}})
+  </div>
+
+  <div v-if="mode=='preview'" class="upload-photo-list">
+    <div v-for="(item,index) in photoList" :key="index">
+      <image class="photo" :src='imageRoot+item' @click='preview' :data-id='index'></image>
+    </div>
+  </div>
+
+  <div v-else-if="mode=='upload'" class="upload-photo-list">
+    <div v-for="(item,index) in localPhotoList" :key="index">
+      <image class="photo" :src='item' @longpress="delphoto" @click='preview' :data-id='index'></image>
+    </div>
+    <image class="photo" src='/static/assets/images/img_upload_bg.png' @click='addphoto' v-if="photoList.length < max_photo" />
+  </div>
+
+</div>
+
+</template>
+
+<script>
+
+const imageUploadAction = 'system/scom-patrol-task-detail/uploadPic'
+const imageServerHost = 'http://192.168.31.119:8080/'
+
+export default {
+  data() {
+    return {
+        allowSelect: 1,
+        max_photo: 0,
+        max_size: 0,
+        imageRoot: imageServerHost,
+        photoList:[],
+        localPhotoList:[]
+    }
+  },
+  props: {
+    name:{
+      type: String,
+      required:false,
+      default: ''
+    },
+    mode:{
+      type: String,
+      required:false,
+      default: 'preview'
+    },
+    max_photo: {
+      type: Number,
+      required:false,
+      default: 3
+    },
+    max_size: {
+      type: Number,
+      required: false,
+      default: 3000000
+    },
+    photoList:{
+      type:Array,
+      required:false,
+      default:()=>[]
+    }
+  },
+  mounted () {
+    console.log('>>>>>>>>>>>>>>>>>>>>>>')
+    console.log('mode: '+this.mode)
+
+  },
+  methods: {
+
+   photoSizeUnit(){
+      if(this.max_size<1000000){
+        return (this.max_size / 1000) + 'K';
+      }else{
+        return (this.max_size / 1000000) + 'M'
+      }
+    },
+
+    // 预览照片
+    preview(e) {
+      var rootPath = this.imageRoot;
+      var photoList = this.photoList;
+
+      var index = e.currentTarget.dataset.id;
+      console.log('photo id(preview): ' + index);
+
+      if(this.mode=='preview'){
+
+        //拼接图片url路径
+        var tmpImageList = [];
+        for (var idx in photoList) {
+            tmpImageList.push(rootPath + photoList[idx]);
+        }
+
+        wx.previewImage({
+            current: tmpImageList[index],     //当前图片地址
+            urls: tmpImageList,               //所有要预览的图片的地址集合 数组形式
+            success: function (res) { },
+            fail: function (res) { },
+            complete: function (res) { },
+        });
+      }else{
+        wx.previewImage({
+            current: this.localPhotoList[index],     //当前图片地址
+            urls: this.localPhotoList,               //所有要预览的图片的地址集合 数组形式
+            success: function (res) { },
+            fail: function (res) { },
+            complete: function (res) { },
+        });
+      }
+
+    },
+
+    // 删除照片
+    delphoto(e){
+      var that = this;
+      var id = e.currentTarget.dataset.id
+      console.log('photo id(delete): ' + id);
+      wx.showModal({
+        title: '提示',
+        content: '是否移除该图片？',
+        success: function (res) {
+          if (res.confirm) {
+            var uploadArr = that.photoList;
+            uploadArr.splice(id, 1)
+            that.photoList = uploadArr
+
+            var localArr = that.localPhotoList;
+            localArr.splice(id, 1)
+            that.localPhotoList = localArr
+            that.$emit("_photoList", that.photoList)
+          }
+        }
+      })
+    },
+
+    // 添加照片
+    addphoto(e) {
+
+      var that = this;
+
+      wx.chooseImage({
+        count: that.allowSelect, // 一次最多可以选择的图片张数，默认9
+        sizeType: ['original', 'compressed'], // original 原图，compressed 压缩图，默认二者都有
+        sourceType: ['album', 'camera'], // album 从相册选图，camera 使用相机，默认二者都有
+        success: function (res) {
+          wx.showLoading({
+            title: '加载照片，请稍后...',
+            mask: true,
+          });
+
+          var tempFilesSize = res.tempFiles[0].size;  //获取图片的大小，单位B
+          let imagefile = res.tempFilePaths[0]
+          console.log('tempFilesSize: '+tempFilesSize)
+          console.log('max_size: '+that.max_size)
+          if (tempFilesSize <= that.max_size) {   //图片小于或者等于3M时 可以执行获取图片
+            var tempFilePaths = res.tempFilePaths;
+            let loginInfo = wx.getStorageSync("loginInfo")
+            // success 
+            wx.uploadFile({
+              url: imageServerHost + imageUploadAction,
+              header: {
+                        'content-type':'application/x-www-form-urlencoded', // 默认值
+                        "Authorization":loginInfo.token
+                      },
+              filePath: tempFilePaths[0],
+              name: 'files',
+              formData: {
+
+              },
+              success: function (res) {
+
+                console.log(res);
+                if (res.statusCode != 200) {
+                  wx.showToast({
+                    title: '上传失败！',
+                    icon: 'none'
+                  })
+                  return;
+                }
+
+                if (res.data.length > 0) {
+                    console.log(res.data);
+                    let retDict = JSON.parse(res.data)
+                    console.log('===============>>');
+                    console.log(retDict);
+                    console.log('handlingPic: '+retDict.data.handlingPic);
+
+                    that.photoList = that.photoList.concat(retDict.data.handlingPic)
+                    that.localPhotoList = that.localPhotoList.concat(imagefile)
+                }
+                console.log(that.localPhotoList);
+                console.log('======')
+                console.log(that.photoList);
+                that.$emit("_photoList", that.photoList)
+              }
+            })
+          } else {    //图片大于max_size限制大小，弹出一个提示框
+            wx.showToast({
+              title: '上传图片不能大于' + that.photoSizeUnit(),  //标题
+              icon: 'none'       //图标 none不使用图标，详情看官方文档
+            })
+          }
+        },
+        fail: function () {
+          // fail
+        },
+        complete: function () {
+          wx.hideLoading();
+        }
+      })
+    }
+  },
+}
+</script>
+
+<style>
+.upload-photo{
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+.upload-photo-title{
+  position: relative;
+  display: block;
+  width: 100%;
+  font-size: 32rpx;
+  font-family: SourceHanSansCN-Regulay;
+  font-weight: normal;
+  color: #333333;
+  text-align: left;
+}
+.upload-photo-title p{
+  font-size: 20rpx;
+  color: #DDDDDD;
+  font-family: SourceHanSansCN-Regular;
+  font-weight:normal;
+  text-align: right;
+  margin-left: 40rpx;
+  margin-top: 10rpx;
+}
+.upload-photo-list{
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+.photo{
+  position: relative;
+  display: block;
+  margin: 20rpx 20rpx 20rpx 10rpx;
+  width: 200rpx;
+  height: 126rpx;
+}
+</style>

@@ -1,0 +1,138 @@
+.flex-row {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+  }
+.flex-wrap {
+  flex-flow: row wrap;
+}
+  .justify-between {
+    justify-content: space-between;
+  }
+  .justify-start {
+    justify-content: flex-start;
+  }
+  .justify-around {
+    justify-content: space-around;
+  }
+
+  .margintb10 {
+    margin: 0.5rem 0 !important;
+  }
+  .margintb20 {
+    margin: 20rpx 0 !important;
+  }
+  .marginlr1rem {
+    margin: 0 1rem !important;
+  }
+  .padding1rem {
+    padding: 1rem;
+  }
+  .bottom-line {
+    border-bottom: solid 1rpx #666;
+  }
+  .paddingtb1rem {
+    padding: 1rem 0;
+  }
+  .paddinglr2rem {
+    padding: 0 2rem;
+  }
+  .paddinglr1rem {
+    padding: 0 1rem;
+  }
+  .border-box {
+    box-sizing: border-box;
+  }
+  .label {
+    font-size: 32rpx;
+    font-family: PingFangSC-Medium, PingFang SC;
+    font-weight: 500;
+    line-height: 30rpx;
+  }
+  .selector-text {
+    font-family: PingFangSC-Regular;
+    font-size: 30rpx;
+    color: #888;
+    line-height: 32rpx;
+  }
+  .right {
+    float: right;
+  }
+  .absolute-center {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    margin: auto;
+  }
+  .absolute {
+    position: absolute;
+  }
+  radio .wx-radio-input {
+  /* 自定义样式.... */
+    height: 30rpx;
+    width: 30rpx;
+    margin-left: 10rpx;
+  }
+  image {
+    height: 30rpx;
+    width: 30rpx;
+    margin: 10rpx;
+  }
+  .radio-size {
+    font-size: 10rpx;
+  }
+  .bottom-btn {
+    position: fixed;
+    bottom: 3rem;
+    left: 0;
+    right: 0;
+    margin: auto;
+  }
+  .search-input {
+    border: solid 1rpx #333;
+    border-radius: 2rem;
+    padding: 0.5rem 1rem;
+    margin: 0.3rem 0;
+  }
+  .image {
+    height: 3rem;
+    width: 3rem;
+  }
+  .hidden {
+    visibility: hidden;
+  }
+  .tab_bar__bottom {
+    margin-bottom: 3rem;
+  }
+  .width30 {
+    width: 30%;
+  }
+  .width50 {
+    width: 50%;
+  }
+  .width80 {
+    width: 80%;
+  }
+  
+  .gx-my-return{
+    margin: 0rem 0.6rem 0rem;
+    position: fixed;
+    bottom: 1rem;
+    left: 0;
+    right: 0;
+}
+
+.gx-my-return .gx-btn-return{
+    width: 100%;
+    height: .8rem;
+    background: #FF8C01;
+    color: #fff;
+    outline: none;
+    border-radius: 0.05rem;
+    font-size: 0.35rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

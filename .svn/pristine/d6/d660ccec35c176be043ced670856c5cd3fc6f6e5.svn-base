@@ -1,0 +1,53 @@
+{
+  "pages": [
+    "pages/index/main",
+    "pages/logs/main",
+    "pages/counter/main",
+    "pages/device/main",
+    "pages/inspection/main",
+    "pages/work-order/main",
+    "pages/mine/main"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "广西消防云",
+    "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "color": "#7E848B",
+    "selectedColor": "#FF8C01",
+    "list": [
+      {
+        "pagePath": "pages/device/main",
+        "text": "设备",
+        "iconPath": "static/tabs/nav_1.png",
+        "selectedIconPath": "static/tabs/nav_1_active.png"
+      },
+      {
+        "pagePath": "pages/inspection/main",
+        "text": "巡检",
+        "iconPath": "static/tabs/nav_2.png",
+        "selectedIconPath": "static/tabs/nav_2_acitve.png"
+      },
+      {
+        "pagePath": "pages/work-order/main",
+        "text": "工单",
+        "iconPath": "static/tabs/nav_3.png",
+        "selectedIconPath": "static/tabs/nav_3_acitve.png"
+      },
+      {
+        "pagePath": "pages/mine/main",
+        "text": "我的",
+        "iconPath": "static/tabs/nav_4.png",
+        "selectedIconPath": "static/tabs/nav_4_acitve.png"
+      }
+    ]
+  },
+  "networkTimeout": {
+    "request": 10000,
+    "downloadFile": 10000
+  },
+  "position":"bottom",
+  "sitemapLocation": "sitemap.json"
+}

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>test-firefight</title>
+  </head>
+  <script>
+    function setSize() {
+        document.documentElement.style.fontSize = document.documentElement.clientWidth / 10.80 + 'px';
+    }
+    setSize();
+    window.onresize = function () {
+        setSize();
+    }
+</script>
+  <body>
+    <div id="app"></div>
+    <!-- built files will be auto injected -->
+  </body>
+</html>

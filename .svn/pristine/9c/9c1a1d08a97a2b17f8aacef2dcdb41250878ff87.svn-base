@@ -1,0 +1,37 @@
+{
+  "id": "1810325",
+  "name": "广西消防",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "11488163",
+      "name": "warning",
+      "font_class": "warning",
+      "unicode": "e76d",
+      "unicode_decimal": 59245
+    },
+    {
+      "icon_id": "527045",
+      "name": "add",
+      "font_class": "add",
+      "unicode": "e67b",
+      "unicode_decimal": 59003
+    },
+    {
+      "icon_id": "1212618",
+      "name": "top",
+      "font_class": "top",
+      "unicode": "e626",
+      "unicode_decimal": 58918
+    },
+    {
+      "icon_id": "7008998",
+      "name": "right",
+      "font_class": "right",
+      "unicode": "e721",
+      "unicode_decimal": 59169
+    }
+  ]
+}
